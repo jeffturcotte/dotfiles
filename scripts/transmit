@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# perform a transmit docksend
+
+for file in "$@";
+do
+	file=$(realpath $file)
+osascript &> /dev/null <<EOF 
+	tell application "Transmit"
+		open "$file"
+	end tell
+EOF
+done
+

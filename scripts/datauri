@@ -1,0 +1,5 @@
+#!/usr/bin/php
+<?php
+echo "\n";
+echo 'data: '. mime_content_type($argv[1]) . ';base64,' . base64_encode(file_get_contents($argv[1]));
+echo "\n";

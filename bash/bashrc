@@ -1,0 +1,59 @@
+PATH="/usr/local/share/npm/bin:$PATH"
+PATH="~/.composer/vendor/bin:$PATH"
+PATH="~/.config/scripts:$PATH"
+PATH="~/usr/local/sbin:$PATH"
+PATH="/usr/local/bin:$PATH"
+export PATH
+
+BASE16_SHELL="$HOME/Projects/base16-shell/base16-mocha.dark.sh"
+[[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
+
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+	. `brew --prefix`/etc/bash_completion
+fi
+
+# ignore dupes and spaces, set history size
+export HISTCONTROL=ignoredups:ignorespace
+export HISTSIZE=1000
+export HISTFILESIZE=2000
+export SVN_EDITOR='NVIM_TUI_ENABLE_TRUE_COLOR=1 nvim'
+
+# aliases
+alias ls='ls -Gh'
+alias ll='ls -lh'
+alias la='ls -lhA'
+alias c='composer.phar'
+alias d='docker'
+alias dm='docker-machine'
+alias dc='docker-compose'
+alias de='eval "$(docker-machine env dev)"'
+alias docker-clean='docker rm $(docker ps -aq)'
+alias vim='NVIM_TUI_ENABLE_TRUE_COLOR=1 nvim'
+alias tree='tree -C'
+alias tmux_copy='tmux save-buffer -|pbcopy'
+alias tmux_paste='reattach-to-user-namespace tmux set-buffer "$(pbpaste)"'
+alias git_transmit="git status --porcelain | awk '{print \$2}' | xargs ~/bin/transmit"
+alias remove_git="find vendor -name '.git*' -exec rm -rf {} \;"
+alias retab="vim -c 'set et | retab | wc'"
+
+parse_git_branch () 
+{
+	git name-rev HEAD 2> /dev/null | sed 's#HEAD\ \(.*\)#(git:\1)#'
+}
+
+parse_svn_branch() 
+{
+	parse_svn_url | sed -e 's#^'"$(parse_svn_repository_root)"'##g' | awk '{print "(svn:" $1 ")"}'
+}
+
+parse_svn_url()
+{
+	svn info 2>/dev/null | sed -ne 's#^URL: ##p'
+}
+
+parse_svn_repository_root() 
+{
+	svn info 2>/dev/null | sed -ne 's#^Repository Root: ##p'
+}
+
+export PS1="\[\e[0;36m\]\u@\h \[\033[31m\]\$(parse_git_branch)\$(parse_svn_branch) \[\e[1;35m\]\w \n\[\033[1;33m\]\!\[\033[0m\] $ "

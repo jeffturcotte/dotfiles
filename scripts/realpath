@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# realpath
+
+path=$1 
+file=''
+
+if [ ! -d $1 ]; then
+	path=`dirname $1`
+	file=`basename $1`
+fi
+
+cd $path
+path=$PWD
+
+if [ $file ]; then
+	path="$path/$file"
+fi
+
+echo $path
