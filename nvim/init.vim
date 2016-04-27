@@ -1,5 +1,3 @@
-set nocompatible
-
 call plug#begin('~/.config/nvim/plug')
 Plug 'SuperTab--Van-Dewoestine'
 Plug 'SuperSimen/vim-twig'
