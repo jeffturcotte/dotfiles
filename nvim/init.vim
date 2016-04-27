@@ -113,7 +113,7 @@ let g:html_indent_inctags = 'html,body,head,tbody,header,footer,section'
 
 fun! TransmitUpload()
 	silent write
-	let job = jobstart(['/Users/jeff/Bin/transmit', expand('%:p')])
+	let job = jobstart([expand('$HOME') . '/.config/scripts/transmit', expand('%:p')])
 endfun
 
 " Autocommands
