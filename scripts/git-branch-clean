@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# delete all branches merged into the current branch
+git branch --merged | grep -v "\*" | xargs -n 1 git branch -d

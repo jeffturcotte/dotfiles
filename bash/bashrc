@@ -1,11 +1,15 @@
+export GOPATH="$HOME/Projects/gocode"
+
 PATH="/usr/local/share/npm/bin:$PATH"
 PATH="~/.composer/vendor/bin:$PATH"
 PATH="~/.config/scripts:$PATH"
+PATH="$GOPATH/bin:$PATH"
 PATH="~/usr/local/sbin:$PATH"
 PATH="/usr/local/bin:$PATH"
 export PATH
 
-BASE16_SHELL="$HOME/Projects/base16-shell/base16-mocha.dark.sh"
+
+BASE16_SHELL="$HOME/Projects/base16-shell/base16-eighties.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
 
 if [ -f `brew --prefix`/etc/bash_completion ]; then
@@ -28,7 +32,9 @@ alias dm='docker-machine'
 alias dc='docker-compose'
 alias de='eval "$(docker-machine env dev)"'
 alias docker-clean='docker rm $(docker ps -aq)'
+alias g='git'
 alias vim='NVIM_TUI_ENABLE_TRUE_COLOR=1 nvim'
+#alias vim='nvim'
 alias tree='tree -C'
 alias tmux_copy='tmux save-buffer -|pbcopy'
 alias tmux_paste='reattach-to-user-namespace tmux set-buffer "$(pbpaste)"'

@@ -1,0 +1,104 @@
+#!/bin/bash
+main() {
+	MODE="RSYNC"
+	PAUSE=0
+	while getopts ":srp" OPT; do
+		case $OPT in
+			s)
+				#echo "Forced SFTP mode.";
+				MODE="SFTP"
+				;;
+			r)
+				#echo "Forced RSYNC mode.";
+				MODE="RSYNC"
+				;;
+			p)
+				PAUSE=.5
+				;;
+		esac
+	done
+
+	ARGS_START=0
+	for ARG in "$@"; do
+		if [ $ARGS_START == 0 ] && [[ ${ARG:0:1} == "-" ]]; then
+			shift
+		else
+			ARGS_START=1
+		fi
+	done
+
+	if [ $# -eq 0 ]; then
+		while read file; do
+			$0 $file
+		done
+		exit 0
+	fi
+
+	if [ $# -gt 1 ]; then
+		for file in "$@"; do
+			$0 $file
+		done
+		exit 0
+	fi
+
+	ACTIVE=$(realpath $1)
+
+	ROOTDIR="$ACTIVE"
+
+## find SERVERINFO
+	while ! [ -e "$ROOTDIR/SERVERINFO.txt" ] && [ $ROOTDIR != '/' ]; do
+		ROOTDIR=$(dirname $ROOTDIR)
+	done
+
+	if ! [ -e "$ROOTDIR/SERVERINFO.txt" ]; then
+		echo "Failed to find a SERVERINFO.txt.";
+		exit 1
+	fi
+
+	REL=${ACTIVE##$ROOTDIR}
+	#echo ROOTDIR=$ROOTDIR
+	#echo ACTIVE=$ACTIVE
+	#echo REL=$REL
+
+	WEB_USER="web"
+	WEB_SERVER="${ROOTDIR##*/}"
+	WEB_PATH="www/${ROOTDIR##*/}/dev"
+	WEB_PORT="22"
+	RSYNC_ARGS=""
+
+	source $ROOTDIR/SERVERINFO.txt
+
+	if [ -d $ACTIVE ]; then
+		echo Syncing directory $ACTIVE...
+		case $MODE in
+			SFTP)
+				echo lftp -e "cd $WEB_PATH/$REL; mirror -x '\.svn.*' -cpR $ACTIVE .; quit" -u "$WEB_USER" sftp://$WEB_SERVER:
+				lftp -e "cd $WEB_PATH/$REL; mirror -x '\.svn.*' -cpR $ACTIVE .; quit" -u "$WEB_USER" sftp://$WEB_SERVER:
+				;;
+			*)
+				echo rsync -Clrtz $RSYNC_ARGS --chmod=D2775,F664 --delete --exclude=.git --exclude=SERVERINFO.txt --exclude=writable --exclude=session $ACTIVE/ $WEB_USER@$WEB_SERVER:$WEB_PATH/$REL
+				rsync -Clrtz $RSYNC_ARGS --chmod=D2775,F664 --delete --exclude=.git --exclude=SERVERINFO.txt --exclude=writable --exclude=session $ACTIVE/ $WEB_USER@$WEB_SERVER:$WEB_PATH/$REL
+				notify "Upload" "$REL Uploaded"
+				;;
+		esac
+	else
+		echo Uploading file $ACTIVE...
+		case $MODE in
+			SFTP)
+				REL=$(dirname $REL)
+				echo lftp -p $WEB_PORT -e "cd $WEB_PATH/$REL; put $ACTIVE; quit" -u "$WEB_USER" sftp://$WEB_SERVER:
+				lftp -p $WEB_PORT -e "cd $WEB_PATH/$REL; put $ACTIVE; quit" -u "$WEB_USER" sftp://$WEB_SERVER:
+				;;
+			*)
+				echo rsync -e "ssh -p $WEB_PORT" -Clrtz $RSYNC_ARGS --chmod=D2775,F664 --delete $ACTIVE $WEB_USER@$WEB_SERVER:$WEB_PATH/$REL
+				rsync -e "ssh -p $WEB_PORT" -Clrtz $RSYNC_ARGS --chmod=D2775,F664 --delete $ACTIVE $WEB_USER@$WEB_SERVER:$WEB_PATH/$REL
+				notify "Upload" "$REL Uploaded"
+				;;
+		esac
+	fi
+}
+
+main "$@"
+
+sleep $PAUSE
+exit 0
