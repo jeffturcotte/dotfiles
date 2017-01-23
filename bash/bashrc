@@ -17,10 +17,14 @@ if [ -f `brew --prefix`/etc/bash_completion ]; then
 fi
 
 # ignore dupes and spaces, set history size
-export HISTCONTROL=ignoredups:ignorespace
+export HISTCONTROL=ignoreboth:ignorespace:erasedups
 export HISTSIZE=1000
 export HISTFILESIZE=2000
 export SVN_EDITOR='NVIM_TUI_ENABLE_TRUE_COLOR=1 nvim'
+
+# fix Sierra SSH agent
+#ssh-agent 1>/dev/null
+#ssh-add -k ~/.ssh/id_rsa
 
 # aliases
 alias ls='ls -Gh'
