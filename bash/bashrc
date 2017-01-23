@@ -8,7 +8,6 @@ PATH="~/usr/local/sbin:$PATH"
 PATH="/usr/local/bin:$PATH"
 export PATH
 
-
 BASE16_SHELL="$HOME/Projects/base16-shell/base16-eighties.dark.sh"
 [[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
 
@@ -21,10 +20,6 @@ export HISTCONTROL=ignoreboth:ignorespace:erasedups
 export HISTSIZE=1000
 export HISTFILESIZE=2000
 export SVN_EDITOR='NVIM_TUI_ENABLE_TRUE_COLOR=1 nvim'
-
-# fix Sierra SSH agent
-#ssh-agent 1>/dev/null
-#ssh-add -k ~/.ssh/id_rsa
 
 # aliases
 alias ls='ls -Gh'
@@ -46,6 +41,11 @@ alias git_transmit="git status --porcelain | awk '{print \$2}' | xargs ~/bin/tra
 alias remove_git="find vendor -name '.git*' -exec rm -rf {} \;"
 alias retab="vim -c 'set et | retab | wc'"
 
+sync()
+{
+	rsync -aP $1 $2
+}
+
 show_git_info()
 {
 	STATUS="$(git status -bs 2> /dev/null | head -n 1 | sed -E 's/(HEAD )|(## )|(\.\.\.[^ ]+)//g')"
@@ -55,6 +55,7 @@ show_git_info()
 
 	if [ $COMMIT ]
 	then
+		# git remote update > /dev/null &
 		echo " ($COMMIT) $STATUS $DIRTY"
 	fi
 }
